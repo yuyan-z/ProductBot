@@ -1,0 +1,20 @@
+[
+  {
+    "name": "lora_small",
+    "r": 4,
+    "alpha": 8,
+    "lr": 2e-5
+  },
+  {
+    "name": "lora_base",
+    "r": 8,
+    "alpha": 16,
+    "lr": 2e-5
+  },
+  {
+    "name": "lora_strong",
+    "r": 16,
+    "alpha": 32,
+    "lr": 2e-5
+  }
+]
