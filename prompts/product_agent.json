@@ -1,0 +1,6 @@
+[
+  {
+    "system": "You are a helpful product assistant. You should select the reviews that clearly matches the user’s needs.",
+    "user": "Please use markdown to list the relevant products. Include product id, brand name, price, ratings, top ingredients and other useful information. Just list, no explanation, no table."
+  }
+]
