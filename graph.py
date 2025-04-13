@@ -16,11 +16,13 @@ class AgentState(TypedDict):
     product_response: str
     review_response: str
     final_response: str
+    product_model_name: str
+    review_model_name: str
 
 
 # 1. ProductAgent Node
 def run_product_agent(state: AgentState) -> AgentState:
-    agent = ProductAgent("llama3")
+    agent = ProductAgent(state["product_model_name"])
     response = agent.generate_response(state["query_result"])
     return {**state, "product_response": response}
 
@@ -31,7 +33,7 @@ def extract_product_ids(response_text: str) -> str:
 
 # 2. ReviewAgent Node
 def run_review_agent(state: AgentState) -> AgentState:
-    agent = ReviewAgent("llama3")
+    agent = ReviewAgent(state["review_model_name"])
 
     product_response = extract_product_ids(state['product_response'])
     print("Product IDs in response", product_response)
@@ -94,7 +96,9 @@ if __name__ == "__main__":
     graph = build_graph()
     output = graph.invoke({
         "query_text": query_text,
-        "query_result": result_formatted
+        "query_result": result_formatted,
+        "product_model_name": "llama3",
+        "review_model_name": "llama3"
     })
 
     print("-- Final response --")
