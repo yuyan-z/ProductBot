@@ -1,3 +1,4 @@
+import json
 import os
 
 import kagglehub
@@ -30,6 +31,16 @@ def load_product_data() -> pd.DataFrame:
     print("Loading product data...")
     df = pd.read_csv(os.path.join(DATASET_DIR, "product_info.csv"))
     return df
+
+
+def load_json(filename):
+    data = []
+    with open(filename, 'r', encoding='utf-8') as f:
+        try:
+            data = json.load(f)
+        except json.JSONDecodeError as e:
+            print(f"Error decoding {f}: {e}")
+    return data
 
 
 if __name__ == "__main__":

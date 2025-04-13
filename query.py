@@ -9,10 +9,6 @@ DATABASE_PATH = "database"
 
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=100)
 
-review_df = pd.read_csv("data/review.csv", dtype={0: str})
-review_df["review_id"] = review_df.index.astype(str)
-product_df = pd.read_csv("data/product.csv", dtype={0: str})
-
 
 def load_collection() -> Collection:
     print("Loading collection...")
@@ -27,6 +23,9 @@ def load_collection() -> Collection:
 
 
 def init_collection(collection: Collection) -> None:
+    review_df = pd.read_csv("data/review.csv", dtype={0: str})
+    product_df = pd.read_csv("data/product.csv", dtype={0: str})
+
     print("Initializing collection...")
     # Add data in batches
     batch_size = 200
@@ -55,7 +54,7 @@ def init_collection(collection: Collection) -> None:
         doc_id_counter += len(chunks)
 
 
-def print_query_result(query_text: str, result: dict) -> None:
+def print_query_result(review_df, product_df, query_text: str, result: dict) -> None:
     print(f"-- Query --")
     print(query_text)
 
@@ -79,14 +78,42 @@ def print_query_result(query_text: str, result: dict) -> None:
         print()
 
 
-if __name__ == "__main__":
-    collection = load_collection()
-    query_text = "Can you recommend any makeup removers for oily skin?"
+def format_query_result(product_df, query_text, results):
+    results_formatted = {
+        "user_query": query_text,
+        "products": [],
+        "reviews": []
+    }
 
+    n_results = len(results["ids"][0])
+    for i in range(n_results):
+        review = {}
+        review["review_text"] = results["documents"][0][i]
+        metadata = results["metadatas"][0][i]
+        product_id = metadata["product_id"]
+        product = product_df[product_df["product_id"] == product_id].iloc[0].to_dict()
+        results_formatted["products"].append(product)
+        review["product_id"] = product_id
+        review["product_name"] = product["product_name"]
+        results_formatted["reviews"].append(review)
+
+    return results_formatted
+
+def do_query(collection: Collection, query_text: str, n_results: int) -> pd.DataFrame:
     results = collection.query(
         query_texts=[query_text],
-        n_results=5
+        n_results=n_results
     )
+    return results
 
-    print_query_result(query_text, results)
+
+if __name__ == "__main__":
+    review_df = pd.read_csv("data/review.csv")
+    product_df = pd.read_csv("data/product.csv")
+
+    collection = load_collection()
+    query_text = "What is the best makeup remover for oily skin under $30?"
+
+    results = do_query(collection, query_text, 2)
+    print_query_result(review_df, product_df, query_text, results)
 

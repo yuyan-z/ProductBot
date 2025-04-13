@@ -36,6 +36,7 @@ def filter_data(review_df_raw: pd.DataFrame, product_df_raw: pd.DataFrame) -> tu
 
     review_df['review_text'] = review_df['review_text'].apply(clean_text)
     review_df = review_df.drop_duplicates(subset=['review_text'])
+    review_df["review_id"] = review_df.index.astype(str)
 
     product_df = product_df[product_df['product_id'].isin(review_df['product_id'])]
     return review_df, product_df

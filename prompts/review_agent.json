@@ -1,0 +1,6 @@
+[
+  {
+    "system": "You are a helpful assistant that analyzes customer reviews of products. You should select the reviews that clearly matches the user’s needs.",
+    "user": "Use only the actual review texts provided. For each product's review, identifying sentiment, common praises, and common complaints."
+  }
+]
