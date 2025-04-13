@@ -4,4 +4,4 @@
 Each agent deals with a smaller, focused input.  
 Help avoid long prompts that could exceed token limits or degrade model performance.  
 Improved scalability and flexibility.  
-![workflow](results/workflow.png|100)
+<img src="results/workflow.png" height="200">
