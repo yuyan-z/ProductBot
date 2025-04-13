@@ -62,7 +62,7 @@ builder.add_edge("review_agent", "merge")
 builder.set_finish_point("merge")
 
 graph = builder.compile()
-
+# print(graph.get_graph().draw_mermaid())
 
 def sentiment_analyse(query_result: dict) -> dict:
     analyser = SentimentAnalyser()
@@ -93,5 +93,7 @@ if __name__ == "__main__":
         "query_result": result_formatted
     })
 
-    print("-- Final response ====")
+    print("-- Final response --")
     print(output["final_response"])
+
+    print(graph.get_graph().draw_mermaid())

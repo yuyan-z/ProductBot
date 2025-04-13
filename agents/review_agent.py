@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -6,7 +8,8 @@ from langchain_ollama import OllamaLLM
 from query import load_collection, do_query, format_query_result
 from utils import load_json
 
-PROMPT_DATA_PATH = "../prompts/review_agent.json"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROMPT_DATA_PATH = os.path.join(BASE_DIR, "..", "prompts", "review_agent.json")
 
 
 class ReviewAgent:
@@ -45,7 +48,8 @@ class ReviewAgent:
             messages.append(("user", f"Review:\n{review_text}"))
 
         if response_products != '':
-            messages.append(("user", f"Please prioritize the reviews for the following recommended products: \n{response_products }"))
+            messages.append(("user",
+                             f"Please prioritize the reviews for the following recommended products: \n{response_products}"))
 
         messages.append(("user", self.prompt_data[0]["user"]))
         template = ChatPromptTemplate.from_messages(messages)

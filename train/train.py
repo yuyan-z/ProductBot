@@ -8,7 +8,7 @@ from peft import get_peft_model, LoraConfig, TaskType
 import numpy as np
 from sklearn.metrics import accuracy_score, f1_score
 
-DATA_PATH = 'data/review.csv'
+DATA_PATH = '../data/review.csv'
 
 
 def rating_to_sentiment(r: int) -> int:

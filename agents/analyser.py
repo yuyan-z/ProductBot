@@ -1,11 +1,14 @@
+import os
+
 import pandas as pd
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from peft import PeftModel
 
-
 MODEL_NAME = "distilbert-base-uncased"
-LORA_MODEL_PATH = "../models/lora_strong"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+LORA_MODEL_PATH = os.path.join(BASE_DIR, "..", "models", "lora_strong")
+
 
 class SentimentAnalyser:
     def __init__(self):
@@ -46,4 +49,3 @@ if __name__ == "__main__":
     sentiments = analyser.analyze(review_texts)
     reviews_sample["sentiment"] = sentiments
     print(reviews_sample.head())
-
