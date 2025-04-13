@@ -1,11 +1,12 @@
 import re
 
 import pandas as pd
-from langgraph.graph import StateGraph, END
+from langgraph.graph import StateGraph
 from typing import TypedDict
 
-from product_agent import ProductAgent
-from review_agent import ReviewAgent
+from agents.analyser import SentimentAnalyser
+from agents.product_agent import ProductAgent
+from agents.review_agent import ReviewAgent
 from query import load_collection, do_query, format_query_result
 
 
@@ -28,7 +29,7 @@ def extract_product_ids(response_text: str) -> str:
     ids = re.findall(r"\bP\d+\b", response_text)
     return ", ".join(ids) if ids else ""
 
-# 2: ReviewAgent Node
+# 2. ReviewAgent Node
 def run_review_agent(state: AgentState) -> AgentState:
     agent = ReviewAgent("llama3")
 
@@ -42,7 +43,7 @@ def run_review_agent(state: AgentState) -> AgentState:
     return {**state, "review_response": response}
 
 
-# 3. Merge Results === #
+# 3. Merge Results
 def merge_results(state: AgentState) -> str:
     final_response = (
         f"{state['product_response']}\n\n"
@@ -62,6 +63,16 @@ builder.set_finish_point("merge")
 
 graph = builder.compile()
 
+
+def sentiment_analyse(query_result: dict) -> dict:
+    analyser = SentimentAnalyser()
+    review_texts = [r["review_text"] for r in query_result["reviews"]]
+    sentiments = analyser.analyze(review_texts)
+    for r, s in zip(query_result["reviews"], sentiments):
+        r["sentiment"] = s
+    return query_result
+
+
 if __name__ == "__main__":
     product_df = pd.read_csv("data/product.csv")
     collection = load_collection()
@@ -70,7 +81,12 @@ if __name__ == "__main__":
 
     result = do_query(collection, query_text, 10)
     result_formatted = format_query_result(product_df, query_text, result)
-    print(result_formatted["reviews"])
+    print("Retrieved results", result_formatted)
+
+    useAnalyser = True
+    if useAnalyser:
+        result_formatted = sentiment_analyse(result_formatted)
+        print("Reviews with sentiments", result_formatted["reviews"])
 
     output = graph.invoke({
         "query_text": query_text,

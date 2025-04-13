@@ -6,7 +6,7 @@ from langchain_ollama import OllamaLLM
 from query import load_collection, do_query, format_query_result
 from utils import load_json
 
-PROMPT_DATA_PATH = "prompts/review_agent.json"
+PROMPT_DATA_PATH = "../prompts/review_agent.json"
 
 
 class ReviewAgent:
@@ -66,8 +66,8 @@ class ReviewAgent:
 
 
 if __name__ == "__main__":
-    review_df = pd.read_csv("data/review.csv")
-    product_df = pd.read_csv("data/product.csv")
+    review_df = pd.read_csv("../data/review.csv")
+    product_df = pd.read_csv("../data/product.csv")
 
     collection = load_collection()
     print("collection count:", collection.count())

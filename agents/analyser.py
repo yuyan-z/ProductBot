@@ -5,7 +5,7 @@ from peft import PeftModel
 
 
 MODEL_NAME = "distilbert-base-uncased"
-LORA_MODEL_PATH = "models/lora_strong"
+LORA_MODEL_PATH = "../models/lora_strong"
 
 class SentimentAnalyser:
     def __init__(self):
@@ -21,6 +21,7 @@ class SentimentAnalyser:
         self.model.eval()
 
     def analyze(self, docs: list[str]) -> list[str]:
+        print("Analyzing sentiments...")
         sentiments = []
 
         for doc in docs:
@@ -37,7 +38,7 @@ class SentimentAnalyser:
 
 
 if __name__ == "__main__":
-    review_df = pd.read_csv("data/review.csv")
+    review_df = pd.read_csv("../data/review.csv")
 
     analyser = SentimentAnalyser()
     reviews_sample = review_df.sample(10)
