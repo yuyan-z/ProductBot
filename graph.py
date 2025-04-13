@@ -51,18 +51,21 @@ def merge_results(state: AgentState) -> str:
     )
     return {**state, "final_response": final_response}
 
-builder = StateGraph(AgentState)
-builder.add_node("product_agent", run_product_agent)
-builder.add_node("review_agent", run_review_agent)
-builder.add_node("merge", merge_results)
 
-builder.set_entry_point("product_agent")
-builder.add_edge("product_agent", "review_agent")
-builder.add_edge("review_agent", "merge")
-builder.set_finish_point("merge")
+def build_graph():
+    builder = StateGraph(AgentState)
+    builder.add_node("product_agent", run_product_agent)
+    builder.add_node("review_agent", run_review_agent)
+    builder.add_node("merge", merge_results)
 
-graph = builder.compile()
-# print(graph.get_graph().draw_mermaid())
+    builder.set_entry_point("product_agent")
+    builder.add_edge("product_agent", "review_agent")
+    builder.add_edge("review_agent", "merge")
+    builder.set_finish_point("merge")
+
+    graph = builder.compile()
+    # print(graph.get_graph().draw_mermaid())
+    return graph
 
 def sentiment_analyse(query_result: dict) -> dict:
     analyser = SentimentAnalyser()
@@ -88,6 +91,7 @@ if __name__ == "__main__":
         result_formatted = sentiment_analyse(result_formatted)
         print("Reviews with sentiments", result_formatted["reviews"])
 
+    graph = build_graph()
     output = graph.invoke({
         "query_text": query_text,
         "query_result": result_formatted
@@ -95,5 +99,3 @@ if __name__ == "__main__":
 
     print("-- Final response --")
     print(output["final_response"])
-
-    print(graph.get_graph().draw_mermaid())
