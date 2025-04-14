@@ -7,9 +7,5 @@ User Input → Embeddings
 → Pass the retrieved results and the filtered products from product_agent to review_agent  
 → Merge and process final results  
 
-## Getting Started
-1. `docker build -t ProductBot`
-2. `docker run -p 5000:5000 ProductBot`
-
 ## Example
 
