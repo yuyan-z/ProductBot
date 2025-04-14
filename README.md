@@ -8,8 +8,8 @@ User Input → Embeddings
 → Merge and process final results  
 
 ## Getting Started
-1. `docker build -t product-app`
-2. `docker run -p 5000:5000 product-app`
+1. `docker build -t ProductBot`
+2. `docker run -p 5000:5000 ProductBot`
 
 ## Example
 
