@@ -8,4 +8,4 @@ User Input → Embeddings
 → Merge and process final results  
 
 ## Example
-<img src="results/web.png" width="400">
+<img src="results/web.png" width="800">
