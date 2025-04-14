@@ -10,7 +10,7 @@ app = Flask(__name__)
 product_df = load_product_data()
 collection = load_collection()
 graph = build_graph()
-
+n_results = 10
 
 @app.route("/", methods=["GET"])
 def index():
@@ -24,11 +24,10 @@ def handle_query():
     query_text = data.get("query_text", "")
     product_model = data.get("product_model", "llama3")
     review_model = data.get("review_model", "llama3")
-    top_k = data.get("top_k", 10)
     use_analyser = data.get("use_analyser", True)
 
     # 1. Retrieve relevant products
-    results = do_query(collection, query_text, top_k)
+    results = do_query(collection, query_text, n_results)
     results_formatted = format_query_results(product_df, query_text, results)
 
     # 2. Sentiment analysis if enabled
@@ -45,8 +44,6 @@ def handle_query():
 
     output = graph.invoke(state)
     return jsonify({
-        "product_response": output["product_response"],
-        "review_response": output["review_response"],
         "final_response": output["final_response"]
     })
 

@@ -1,0 +1,17 @@
+flask~=3.1.0
+pandas~=2.2.3
+numpy~=2.2.4
+datasets~=3.4.1
+transformers~=4.51.2
+peft~=0.7.0
+scikit-learn~=1.6.1
+torch~=2.6.0+cu126
+langchain-core~=0.3.49
+langgraph~=0.3.29
+matplotlib~=3.10.0
+emoji~=2.14.1
+chromadb~=0.6.3
+langchain-text-splitters~=0.3.7
+langchain~=0.3.21
+tqdm~=4.67.1
+kagglehub~=0.3.11
