@@ -10,7 +10,7 @@ app = Flask(__name__)
 product_df = load_product_data()
 collection = load_collection()
 graph = build_graph()
-n_results = 10
+n_results = 5
 
 @app.route("/", methods=["GET"])
 def index():
