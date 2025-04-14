@@ -1,6 +1,10 @@
 # ProductBot
 
 ## Workflow
-Each agent deals with a smaller, focused input.  Help avoid long prompts that could exceed token limits or degrade model performance. Improved scalability and flexibility.  
-Allows passing filtered product information to the ReviewAgent.  
-<img src="results/workflow.png" height="400">
+User Input → Embeddings
+→ Search for the most similar review_text from ChromaDB
+→ Pass the retrieved results to product_agent
+→ Pass the retrieved results and the filtered products from product_agent to review_agent
+→ Merge and process final results
+
+
