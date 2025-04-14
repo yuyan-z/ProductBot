@@ -31,7 +31,7 @@ def init_collection(collection: Collection) -> None:
     # Add data in batches
     batch_size = 200
     doc_id_counter = 0
-    for i in tqdm(range(0, len(review_df) // 100, batch_size)):
+    for i in tqdm(range(0, len(review_df), batch_size)):
         batch = review_df.iloc[i:i + batch_size]
 
         # split document to chunks
