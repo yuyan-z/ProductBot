@@ -1,5 +1,4 @@
-from flask import Flask, request, jsonify
-import pandas as pd
+from flask import Flask, request, jsonify, render_template
 
 from graph import build_graph, sentiment_analyse
 from utils import load_product_data
@@ -11,6 +10,11 @@ app = Flask(__name__)
 product_df = load_product_data()
 collection = load_collection()
 graph = build_graph()
+
+
+@app.route("/", methods=["GET"])
+def index():
+    return render_template("index.html")
 
 
 @app.route("/query", methods=["POST"])

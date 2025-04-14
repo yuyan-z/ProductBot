@@ -1,0 +1,44 @@
+<script>
+    async function submitQuery() {
+        const queryText = document.getElementById("query").value;
+        const top_k = 10;
+        const model = "llama3";
+
+        // Step 1: Get product recommendations
+        document.getElementById("product_response").innerText = "Fetching products...";
+        let res1 = await fetch("/products", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ query_text: queryText, top_k })
+        });
+        let data1 = await res1.json();
+        const productResults = data1.product_results;
+        document.getElementById("product_response").innerText = JSON.stringify(productResults, null, 2);
+
+        // Step 2: Analyze reviews
+        document.getElementById("review_response").innerText = "Analyzing reviews...";
+        let res2 = await fetch("/reviews", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ product_results: productResults })
+        });
+        let data2 = await res2.json();
+        const reviewResults = data2.review_results;
+        document.getElementById("review_response").innerText = JSON.stringify(reviewResults, null, 2);
+
+        // Step 3: Final response
+        document.getElementById("final_response").innerText = "Generating final response...";
+        let res3 = await fetch("/final", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                query_text: queryText,
+                product_model: model,
+                review_model: model,
+                review_results: reviewResults
+            })
+        });
+        let data3 = await res3.json();
+        document.getElementById("final_response").innerText = data3.final_response || "";
+    }
+</script>
