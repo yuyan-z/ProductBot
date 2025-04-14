@@ -1,3 +1,5 @@
+import os
+
 import chromadb
 import pandas as pd
 from chromadb.api.models import Collection
@@ -5,14 +7,15 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 from tqdm import tqdm
 
-DATABASE_PATH = "database"
+from config import VECTORDB_PATH
+from utils import load_review_data, load_product_data
 
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=100)
 
 
 def load_collection() -> Collection:
     print("Loading collection...")
-    chroma_client = chromadb.PersistentClient(path=DATABASE_PATH)
+    chroma_client = chromadb.PersistentClient(path=VECTORDB_PATH)
     collection = chroma_client.get_or_create_collection("review_collection")
 
     # Initialize collection if no data
@@ -23,15 +26,13 @@ def load_collection() -> Collection:
 
 
 def init_collection(collection: Collection) -> None:
-    review_df = pd.read_csv("data/review.csv", dtype={0: str})
-    product_df = pd.read_csv("data/product.csv", dtype={0: str})
-
+    review_df = load_review_data()
     print("Initializing collection...")
     # Add data in batches
     batch_size = 200
     doc_id_counter = 0
-    for i in tqdm(range(0, len(review_df)  // 100, batch_size)):
-        batch = review_df.iloc[i:i+batch_size]
+    for i in tqdm(range(0, len(review_df) // 100, batch_size)):
+        batch = review_df.iloc[i:i + batch_size]
 
         # split document to chunks
         documents = [
@@ -54,18 +55,20 @@ def init_collection(collection: Collection) -> None:
         doc_id_counter += len(chunks)
 
 
-def print_query_result(review_df, product_df, query_text: str, result: dict) -> None:
+def print_query_results(review_df: pd.DataFrame, product_df: pd.DataFrame, query_text: str, results: dict) -> None:
     print(f"-- Query --")
     print(query_text)
 
     print(f"-- Results --")
-    print(result)
-    n_results = len(result["ids"][0])
+    print(results)
+    print()
+
+    n_results = len(results["ids"][0])
     for i in range(n_results):
-        chunk_id = result["ids"][0][i]
-        distance = result["distances"][0][i]
-        chunk = result["documents"][0][i]
-        metadata = result["metadatas"][0][i]
+        chunk_id = results["ids"][0][i]
+        distance = results["distances"][0][i]
+        chunk = results["documents"][0][i]
+        metadata = results["metadatas"][0][i]
         product_id = metadata["product_id"]
         review_id = metadata["review_id"]
         product = product_df[product_df["product_id"] == product_id].iloc[0].to_dict()
@@ -73,12 +76,12 @@ def print_query_result(review_df, product_df, query_text: str, result: dict) -> 
 
         print(f"chunk_id: {chunk_id}, distance: {distance:.4f}, review_id: {review_id}, product_id: {product_id}")
         print("\tchunk: ", chunk)
-        print("\treview:" , review)
+        print("\treview:", review)
         print("\tproduct: ", product)
         print()
 
 
-def format_query_result(product_df, query_text, results):
+def format_query_results(product_df: pd.DataFrame, query_text: str, results: dict) -> dict:
     results_formatted = {
         "user_query": query_text,
         "products": [],
@@ -99,7 +102,8 @@ def format_query_result(product_df, query_text, results):
 
     return results_formatted
 
-def do_query(collection: Collection, query_text: str, n_results: int) -> pd.DataFrame:
+
+def do_query(collection: Collection, query_text: str, n_results: int) -> dict:
     results = collection.query(
         query_texts=[query_text],
         n_results=n_results
@@ -108,12 +112,9 @@ def do_query(collection: Collection, query_text: str, n_results: int) -> pd.Data
 
 
 if __name__ == "__main__":
-    review_df = pd.read_csv("data/review.csv")
-    product_df = pd.read_csv("data/product.csv")
-
+    review_df = load_review_data()
+    product_df = load_product_data()
     collection = load_collection()
     query_text = "What is the best makeup remover for oily skin under $30?"
-
     results = do_query(collection, query_text, 2)
-    print_query_result(review_df, product_df, query_text, results)
-
+    print_query_results(review_df, product_df, query_text, results)

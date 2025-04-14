@@ -5,9 +5,10 @@ import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from peft import PeftModel
 
+from config import LORA_MODEL_PATH
+from utils import load_review_data
+
 MODEL_NAME = "distilbert-base-uncased"
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-LORA_MODEL_PATH = os.path.join(BASE_DIR, "..", "models", "lora_strong")
 
 
 class SentimentAnalyser:
@@ -41,11 +42,11 @@ class SentimentAnalyser:
 
 
 if __name__ == "__main__":
-    review_df = pd.read_csv("../data/review.csv")
+    review_df = load_review_data()
 
     analyser = SentimentAnalyser()
     reviews_sample = review_df.sample(10)
     review_texts = reviews_sample["review_text"].tolist()
     sentiments = analyser.analyze(review_texts)
     reviews_sample["sentiment"] = sentiments
-    print(reviews_sample.head())
+    print(reviews_sample)

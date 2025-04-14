@@ -1,18 +1,17 @@
 import re
-
-import pandas as pd
 from langgraph.graph import StateGraph
 from typing import TypedDict
 
 from agents.analyser import SentimentAnalyser
 from agents.product_agent import ProductAgent
 from agents.review_agent import ReviewAgent
-from query import load_collection, do_query, format_query_result
+from utils import load_product_data
+from vectordb import load_collection, do_query, format_query_results
 
 
 class AgentState(TypedDict):
     query_text: str
-    query_result: dict
+    query_results: dict
     product_response: str
     review_response: str
     final_response: str
@@ -23,7 +22,7 @@ class AgentState(TypedDict):
 # 1. ProductAgent Node
 def run_product_agent(state: AgentState) -> AgentState:
     agent = ProductAgent(state["product_model_name"])
-    response = agent.generate_response(state["query_result"])
+    response = agent.generate_response(state["query_results"])
     return {**state, "product_response": response}
 
 
@@ -36,10 +35,10 @@ def run_review_agent(state: AgentState) -> AgentState:
     agent = ReviewAgent(state["review_model_name"])
 
     product_response = extract_product_ids(state['product_response'])
-    print("Product IDs in response", product_response)
+    print("-- Product IDs in response --\n", product_response)
 
     response = agent.generate_response(
-        query_result=state["query_result"],
+        query_results=state["query_results"],
         product_response=product_response
     )
     return {**state, "review_response": response}
@@ -79,24 +78,24 @@ def sentiment_analyse(query_result: dict) -> dict:
 
 
 if __name__ == "__main__":
-    product_df = pd.read_csv("data/product.csv")
+    product_df = load_product_data()
     collection = load_collection()
 
     query_text = "What are the best makeup removers for oily skin under $30?"
 
-    result = do_query(collection, query_text, 10)
-    result_formatted = format_query_result(product_df, query_text, result)
-    print("Retrieved results", result_formatted)
+    results = do_query(collection, query_text, 10)
+    results_formatted = format_query_results(product_df, query_text, results)
+    print("-- Retrieved results --\n", results_formatted)
 
     useAnalyser = True
     if useAnalyser:
-        result_formatted = sentiment_analyse(result_formatted)
-        print("Reviews with sentiments", result_formatted["reviews"])
+        results_formatted = sentiment_analyse(results_formatted)
+        print("-- Reviews with sentiments --\n", results_formatted["reviews"])
 
     graph = build_graph()
     output = graph.invoke({
         "query_text": query_text,
-        "query_result": result_formatted,
+        "query_results": results_formatted,
         "product_model_name": "llama3",
         "review_model_name": "llama3"
     })

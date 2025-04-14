@@ -1,9 +1,12 @@
+import os
 from typing import Any
 
 import emoji
+import kagglehub
 import pandas as pd
 
-from utils import load_review_data, load_product_data
+os.environ["KAGGLEHUB_CACHE"] = "."
+DATASET_DIR = 'datasets/nadyinky/sephora-products-and-skincare-reviews/versions/2'
 
 REVIEW_COLUMNS = [
     'author_id', 'rating', 'submission_time', 'review_text',
@@ -18,6 +21,31 @@ PRODUCT_COLUMNS = [
 MIN_TEXT_LEN = 50
 MAX_TEXT_LEN = 2000
 MIN_YEAR = 2023
+
+
+def download_dataset() -> None:
+    path = kagglehub.dataset_download("nadyinky/sephora-products-and-skincare-reviews")
+    print("Downloaded dataset:", path)
+
+
+def load_reviews() -> pd.DataFrame:
+    print("Loading review data...")
+    filenames = [
+        filename for filename in os.listdir(DATASET_DIR)
+        if filename.startswith('reviews') and filename.endswith('.csv')
+    ]
+    dfs = [
+        pd.read_csv(os.path.join(DATASET_DIR, file), low_memory=False, index_col=0)
+        for file in filenames
+    ]
+    df = pd.concat(dfs, ignore_index=True)
+    return df
+
+
+def load_products() -> pd.DataFrame:
+    print("Loading product data...")
+    df = pd.read_csv(os.path.join(DATASET_DIR, "product_info.csv"))
+    return df
 
 
 def filter_data(review_df_raw: pd.DataFrame, product_df_raw: pd.DataFrame) -> tuple[pd.DataFrame, Any]:
@@ -48,11 +76,12 @@ def clean_text(text: str) -> str:
 
 
 if __name__ == "__main__":
-    review_df = load_review_data()  # shape (1094411, 18)
-    product_df = load_product_data()  # shape (8494, 27)
+    download_dataset()
+
+    review_df = load_reviews()  # shape (1094411, 18)
+    product_df = load_products()  # shape (8494, 27)
 
     review_df, product_df = filter_data(review_df, product_df)
-
     print(review_df.shape)  # (21278, 10)
     print(product_df.shape)  # (1545, 12)
 
